@@ -15,6 +15,7 @@ import 'zip/zip_file.dart';
 import 'zip/zip_file_header.dart';
 import 'zlib/_zlib_encoder.dart';
 import 'zlib/deflate.dart';
+import 'package:crypto/crypto.dart';
 
 class _ZipFileData {
   late String name;
@@ -153,10 +154,11 @@ class ZipEncoder {
 
   // https://stackoverflow.com/questions/62708273/how-unique-is-the-salt-produced-by-this-function
   // length is for the underlying bytes, not the resulting string.
-  Uint8List _generateSalt([int length = 94]) {
-    return Uint8List.fromList(
-        List<int>.generate(length, (i) => _random.nextInt(256)));
-  }
+Uint8List _generateSalt([int length = 94]) {
+  final values = List<int>.generate(length, (i) => _random.nextInt(256));
+  final convertValue = sha256.convert(values);
+  return Uint8List.fromList(convertValue.bytes);
+}
 
   Uint8List? _mac;
   Uint8List? _pwdVer;
